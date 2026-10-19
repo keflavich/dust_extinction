@@ -38,6 +38,9 @@ Model References
 B92: `Bastiaansen 1992, A&AS, 92, 449
 <https://scixplorer.org/abs/1992A%26AS...93..449B/abstract>`_
 
+BF25: `Bravo Ferres et al. 2025, A&A, 704, A130
+<https://scixplorer.org/abs/2025A%26A...704A.130B/abstract>`_
+
 C11: `Compiegne et al. 2011, A&A, 525, 103
 <https://scixplorer.org/abs/2011A%26A...525A.103C/abstract>`_
 

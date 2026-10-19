@@ -18,7 +18,8 @@ Average models
    ultraviolet through near-infrared
    (Gordon, Cartlege, & Clayton 2009) and near- and mid-infrared
    (Rieke & Lebofsky 1985; Indebetouw et al. 2005; Chiar & Tielens 2006; 
-   Fritz et al. 2011; Gordon et al. 2021; Decleir et al. 2022),
+   Fritz et al. 2011; Gordon et al. 2021; Decleir et al. 2022;
+   Bravo Ferres et al. 2025),
    the Magellanic Clouds (Gordon et al. 2003; Gordon et al. 2024),
    M31 (Clayton et al. 2025), and M33 (Gordon et al. 2023).
 
@@ -84,6 +85,7 @@ Average models
                                         CT06_MWLoc,
                                         CT06_MWGC,
                                         F11_MWGC,
+                                        BF25_MWGC,
                                         G21_MWAvg,
                                         D22_MWAvg)
 
@@ -93,7 +95,7 @@ Average models
   x = 1.0 / (np.arange(1.0, 40.0 ,0.1) * u.micron)
 
   models = [RL85_MWGC, RRP89_MWGC, I05_MWAvg, CT06_MWLoc, CT06_MWGC,
-            F11_MWGC, G21_MWAvg, D22_MWAvg]
+            F11_MWGC, BF25_MWGC, G21_MWAvg, D22_MWAvg]
 
   for cmodel in models:
     ext_model = cmodel()

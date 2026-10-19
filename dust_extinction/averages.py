@@ -20,6 +20,7 @@ __all__ = [
     "CT06_MWLoc",
     "GCC09_MWAvg",
     "F11_MWGC",
+    "BF25_MWGC",
     "G21_MWAvg",
     "D22_MWAvg",
     "G24_SMCAvg",
@@ -1275,6 +1276,105 @@ class F11_MWGC(BaseExtModel):
            Input x values outside of defined range
         """
         # define the function allowing for spline interpolation
+        f = interp1d(self.obsdata_x, self.obsdata_axav)
+
+        return f(x)
+
+
+class BF25_MWGC(BaseExtModel):
+    r"""
+    Bravo Ferres et al (2025) MW Galactic Center Curve
+
+    Parameters
+    ----------
+    None
+
+    Raises
+    ------
+    None
+
+    Notes
+    -----
+    From Bravo Ferres et al. (2025, A&A, 704, A130)
+
+    Based on JWST/NIRCam observations of Sgr C.  The measured
+    A(lambda)/A(F162M) ratios are converted to A(lambda)/A(V) using
+    A(F162M)/A(V) from the Draine (2003) R(V) = 5.5 grain model, which
+    provides the best fit to the derived extinction curve.
+
+    Example showing the average curve
+
+    .. plot::
+        :include-source:
+
+        import numpy as np
+        import matplotlib.pyplot as plt
+        import astropy.units as u
+
+        from dust_extinction.averages import BF25_MWGC
+
+        fig, ax = plt.subplots()
+
+        # define the extinction model
+        ext_model = BF25_MWGC()
+
+        # generate the curves and plot them
+        x = np.arange(1.0/ext_model.x_range[1], 1.0/ext_model.x_range[0], 0.01) * u.micron
+
+        ax.plot(x,ext_model(x),label='BF25_MWGC')
+        ax.plot(1.0/ext_model.obsdata_x, ext_model.obsdata_axav, 'ko',
+                label='obsdata')
+
+        ax.set_xlabel(r'$\lambda$ [$\mu m$]')
+        ax.set_ylabel(r'$A(x)/A(V)$')
+
+        ax.legend(loc='best')
+        plt.show()
+    """
+
+    x_range = [1.0 / 4.8095054, 1.0 / 1.2030072]
+
+    Rv = 5.5  # assumed for normalization
+
+    def __init__(self, **kwargs):
+
+        # get the tabulated information
+        ref = importlib_resources.files("dust_extinction") / "data"
+        with importlib_resources.as_file(ref) as data_path:
+            a = Table.read(data_path / "BF25_MWGC.dat", format="ascii.commented_header")
+
+        self.obsdata_x = 1.0 / a["wave"].data
+        self.obsdata_axav = a["A(l)/A(V)"].data
+        self.obsdata_axav_unc = a["unc"].data
+
+        # accuracy of the observed data based on published table
+        self.obsdata_tolerance = 1e-6
+
+        super().__init__(**kwargs)
+
+    def evaluate(self, x):
+        """
+        BF25 MWGC function
+
+        Parameters
+        ----------
+        x: float
+           expects either x in units of wavelengths or frequency
+           or assumes wavelengths in wavenumbers [1/micron]
+
+           internally wavenumbers are used
+
+        Returns
+        -------
+        axav: np array (float)
+            A(x)/A(V) extinction curve [mag]
+
+        Raises
+        ------
+        ValueError
+           Input x values outside of defined range
+        """
+        # define the function allowing for linear interpolation
         f = interp1d(self.obsdata_x, self.obsdata_axav)
 
         return f(x)

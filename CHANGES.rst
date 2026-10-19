@@ -1,7 +1,7 @@
 1.8.dev (unreleased)
 ====================
 
-- no changes yet
+- add BF25 MWGC model
 
 1.7 (2026-02-06)
 ================
