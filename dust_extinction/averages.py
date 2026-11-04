@@ -2105,7 +2105,9 @@ class JWST6927_CMZ(BaseExtModel):
       stars with A(K) = 2--3.5 to about 0.9 A(K) for A(K) > 8, because ice
       only forms in the denser material; applying this curve to a
       sightline with a different column therefore requires rescaling the
-      ice term.
+      ice term.  Only about half of the stars have an unsaturated water
+      core, and for A(K) > 5 almost none do, so the high-column amplitudes
+      come from the band wings and rest on the shared band shape.
     * The CO2 band at 4.27 micron is heavily saturated and unresolved at
       the NIRSpec G395M resolution; its tabulated amplitude is a lower
       limit (a synthetic round trip recovers about 70% of the input).
