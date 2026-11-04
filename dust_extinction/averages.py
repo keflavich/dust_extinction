@@ -26,6 +26,7 @@ __all__ = [
     "G24_SMCBumps",
     "C25_M31Avg",
     "G26_M33Avg",
+    "JWST6927_CMZ",
 ]
 
 
@@ -2053,3 +2054,155 @@ class G26_M33Avg(BaseExtModel):
             optnir_axav_y,
             x_range=self.x_range,
         )
+
+
+class JWST6927_CMZ(BaseExtModel):
+    r"""
+    Galactic center / Central Molecular Zone 1.24--5.25 micron extinction
+    curve including the H2O, CO2, and CO ice bands, from JWST NIRSpec
+    background-star spectra (GO 6927).
+
+    Parameters
+    ----------
+    None
+
+    Raises
+    ------
+    None
+
+    Notes
+    -----
+    The curve is the sum of the :class:`CT06_MWGC` continuum extinction
+    curve and a tabulated ice absorption excess,
+
+    .. math::
+
+        \frac{A(\lambda)}{A(V)} = \frac{A_\mathrm{CT06}(\lambda)}{A(V)}
+            + \frac{A_\mathrm{ice}(\lambda)}{A(K)}
+              \frac{A_\mathrm{CT06}(2.2~\mu m)}{A(V)},
+
+    where :math:`A_\mathrm{ice}(\lambda)/A(K)` is read from
+    ``JWST6927_CMZ_ice.dat`` and is zero outside 2.40--5.25 micron, so
+    the curve is exactly CT06_MWGC below 2.40 micron.  The continuum is
+    therefore not a new measurement: the NIRSpec spectra only fix the ice
+    excess, with A(K) of each star set from its short-wavelength end
+    assuming the star is a giant (T_eff = 4500 K).
+
+    The ice excess is the median over 134 background stars behind the
+    G0.253+0.016 ("Brick") molecular cloud and the surrounding CMZ of a
+    per-band amplitude times a fixed band shape.  Saturated bins, where the
+    band core is optically thick and the measured flux is at or below the
+    noise, are excluded from the fit rather than included as an upper
+    limit, and the shape is smoothed (the water band has a broad red
+    shoulder to 3.5 micron and a peak of about 0.6 A(K) at 3.0 micron).
+    Uncertainties in ``obsdata_axav_unc`` are the 16th to 84th percentile
+    half-width of a bootstrap over stars and contain no systematic terms.
+
+    Caveats:
+
+    * The amplitude is a sample median and is not a universal ice-to-dust
+      ratio.  The water amplitude per star rises from about 0.3 A(K) for
+      stars with A(K) = 2--3.5 to about 0.9 A(K) for A(K) > 8, because ice
+      only forms in the denser material; applying this curve to a
+      sightline with a different column therefore requires rescaling the
+      ice term.
+    * The CO2 band at 4.27 micron is heavily saturated and unresolved at
+      the NIRSpec G395M resolution; its tabulated amplitude is a lower
+      limit (a synthetic round trip recovers about 70% of the input).
+    * The continuum under the bands is CT06, anchored at 2.45--2.70 and
+      5.04--5.24 micron, so the excess has residuals of order
+      0.01 A(K) in those windows.
+    * R(V) = 3.1 is assumed, as for CT06_MWGC; it only enters the
+      conversion of E(B-V) to A(V).
+
+    Example showing the average curve compared to CT06_MWGC
+
+    .. plot::
+        :include-source:
+
+        import numpy as np
+        import matplotlib.pyplot as plt
+        import astropy.units as u
+
+        from dust_extinction.averages import JWST6927_CMZ, CT06_MWGC
+
+        fig, ax = plt.subplots()
+
+        # define the extinction models
+        ext_model = JWST6927_CMZ()
+        ct06 = CT06_MWGC()
+
+        # generate the curves and plot them
+        x = np.arange(1.0/ext_model.x_range[1], 1.0/ext_model.x_range[0],
+                      0.01) * u.micron
+
+        ax.plot(x, ext_model(x), label='JWST6927_CMZ')
+        ax.plot(x, ct06(x), label='CT06_MWGC')
+
+        ax.set_xlabel(r'$\lambda$ [$\mu m$]')
+        ax.set_ylabel(r'$A(x)/A(V)$')
+
+        ax.legend(loc='best')
+        plt.show()
+    """
+
+    x_range = [1.0 / 5.25, 1.0 / 1.24]
+
+    Rv = 3.1  # assumed!
+
+    def __init__(self, **kwargs):
+
+        # continuum curve
+        self._continuum = CT06_MWGC()
+        # A(K)/A(V) of the continuum curve at 2.2 micron
+        self.ak_over_av = float(self._continuum.evaluate(1.0 / 2.2))
+
+        # get the tabulated information
+        ref = importlib_resources.files("dust_extinction") / "data"
+        with importlib_resources.as_file(ref) as data_path:
+            a = Table.read(
+                data_path / "JWST6927_CMZ_ice.dat", format="ascii.commented_header"
+            )
+
+        # ice excess in units of A(K)
+        self.obsdata_x = 1.0 / a["wave"].data
+        self._ice_over_ak = interp1d(
+            self.obsdata_x,
+            a["ice_AK"].data,
+            bounds_error=False,
+            fill_value=0.0,
+        )
+        self.obsdata_axav = self.evaluate(self.obsdata_x)
+        # statistical 1 sigma equivalent, bootstrap over stars
+        self.obsdata_axav_unc = (
+            0.5 * (a["ice_AK_p84"].data - a["ice_AK_p16"].data) * self.ak_over_av
+        )
+
+        # tabulated values are rounded to 1e-5
+        self.obsdata_tolerance = 1e-6
+
+        super().__init__(**kwargs)
+
+    def evaluate(self, x):
+        """
+        JWST6927_CMZ function
+
+        Parameters
+        ----------
+        x: float
+           expects either x in units of wavelengths or frequency
+           or assumes wavelengths in wavenumbers [1/micron]
+
+           internally wavenumbers are used
+
+        Returns
+        -------
+        axav: np array (float)
+            A(x)/A(V) extinction curve [mag]
+
+        Raises
+        ------
+        ValueError
+           Input x values outside of defined range
+        """
+        return self._continuum.evaluate(x) + self.ak_over_av * self._ice_over_ak(x)

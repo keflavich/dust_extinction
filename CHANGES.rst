@@ -1,7 +1,8 @@
 1.8.dev (unreleased)
 ====================
 
-- no changes yet
+- add JWST6927_CMZ model: CT06_MWGC plus an H2O/CO2/CO ice excess measured
+  toward Galactic center background stars with JWST NIRSpec (1.24 - 5.25 micron)
 
 1.7 (2026-02-06)
 ================

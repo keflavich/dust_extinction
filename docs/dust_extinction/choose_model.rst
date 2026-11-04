@@ -26,6 +26,7 @@ simplest models and include models for the MW
 :class:`~dust_extinction.averages.I05_MWAvg`,
 :class:`~dust_extinction.averages.CT06_MWLoc`,
 :class:`~dust_extinction.averages.CT06_MWGC`,
+:class:`~dust_extinction.averages.JWST6927_CMZ`,
 :class:`~dust_extinction.averages.GCC09_MWAvg`,
 :class:`~dust_extinction.averages.F11_MWGC`,
 :class:`~dust_extinction.averages.G21_MWAvg`,
@@ -66,6 +67,8 @@ Way, the usual average used is R(V) = 3.1.  See the next section.
 | CT06_MWGC    | 0.037 - 0.8 |      1.24 - 27.0 | MW (GCenter) |
 +--------------+-------------+------------------+--------------+
 | F11_MWGC     |  0.05 - 0.8 |      1.28 - 19.1 | MW (GCenter) |
++--------------+-------------+------------------+--------------+
+| JWST6927_CMZ | 0.19 - 0.81 |      1.24 - 5.25 | MW (GCenter) |
 +--------------+-------------+------------------+--------------+
 | G03_LMCAvg   |  0.3 - 10.0 |        0.1 - 3.3 |          LMC |
 +--------------+-------------+------------------+--------------+

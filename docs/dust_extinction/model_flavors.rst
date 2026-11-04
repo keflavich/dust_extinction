@@ -84,6 +84,7 @@ Average models
                                         CT06_MWLoc,
                                         CT06_MWGC,
                                         F11_MWGC,
+                                        JWST6927_CMZ,
                                         G21_MWAvg,
                                         D22_MWAvg)
 
@@ -93,7 +94,7 @@ Average models
   x = 1.0 / (np.arange(1.0, 40.0 ,0.1) * u.micron)
 
   models = [RL85_MWGC, RRP89_MWGC, I05_MWAvg, CT06_MWLoc, CT06_MWGC,
-            F11_MWGC, G21_MWAvg, D22_MWAvg]
+            F11_MWGC, JWST6927_CMZ, G21_MWAvg, D22_MWAvg]
 
   for cmodel in models:
     ext_model = cmodel()

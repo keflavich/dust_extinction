@@ -105,6 +105,10 @@ G24: `Gordon et al. 2024, ApJ, 970, 51
 
 G26: Gordon et al. 2026, submitted
 
+JWST6927_CMZ: not yet published; JWST NIRSpec GO 6927 background-star spectra
+added to the CT06 continuum (see CT06 above).  Named after the program
+because it does not follow the author-initial naming convention.
+
 HD23: `Hensley & Draine 2023, ApJ, 948, 55
 <https://scixplorer.org/abs/2023ApJ...948...55H/abstract>`_
 
